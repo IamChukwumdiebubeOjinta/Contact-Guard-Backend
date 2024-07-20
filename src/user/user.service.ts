@@ -1,34 +1,42 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'; // Assuming you're using Prisma
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 
+/**
+ * UsersService class provides methods to interact with the Prisma user model.
+ * It uses the PrismaService to perform database operations.
+ */
 @Injectable()
-export class UserService {
-  constructor(
-    private prisma: PrismaService,
-    private jwt: JwtService,
-  ) {}
+export class UsersService {
+  constructor(private prisma: PrismaService) {}
 
-  async register(username: string, password: string) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await this.prisma.user.create({
-      data: { username, password: hashedPassword },
+  async findByUsername(username: string): Promise<any | null> {
+    return this.prisma.user.findUnique({ where: { username } });
+  }
+
+  async findById(id: string): Promise<any | null> {
+    return this.prisma.user.findUnique({ where: { id } });
+  }
+
+  async findByEmail(email: string): Promise<any | null> {
+    return this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async findByUsernameOrEmail(
+    usernameOrEmail: string,
+  ): Promise<any | undefined> {
+    return this.prisma.user.findFirst({
+      where: {
+        OR: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+      },
     });
-
-    return this.generateToken(user.id);
   }
 
-  async login(username: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { username } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid Credentials');
-    }
-
-    return this.generateToken(user.id);
+  async update(id: string, data: Partial<User | null>) {
+    return this.prisma.user.update({ where: { id }, data });
   }
 
-  private generateToken(userId: string) {
-    return this.jwt.sign({ userId });
+  async create(data: { username: string; email: string; password: string }) {
+    return this.prisma.user.create({ data });
   }
 }
