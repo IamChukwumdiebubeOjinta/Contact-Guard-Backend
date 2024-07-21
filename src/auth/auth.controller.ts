@@ -1,6 +1,11 @@
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -11,6 +16,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './guards/jwt-auth-guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -46,6 +52,8 @@ export class AuthController {
     return await this.authService.login(user);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @UseGuards(AuthGuard('jwt-refresh'))
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
@@ -54,6 +62,9 @@ export class AuthController {
     const refreshToken = req.user.refreshToken;
     return this.authService.refreshTokens(userId, refreshToken);
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @UseGuards(AuthGuard('jwt'))
   @Post('logout')
   @HttpCode(HttpStatus.OK)

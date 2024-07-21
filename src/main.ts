@@ -40,5 +40,7 @@ async function bootstrap() {
   });
 
   await app.listen(configService.get<number>('PORT') || 3000);
+  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`Read Swagger Docs: ${await app.getUrl()}/api`);
 }
 bootstrap();
