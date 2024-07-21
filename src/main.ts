@@ -4,10 +4,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
+
+  const allowedOrigins =
+    configService.get<string>('ALLOWED_ORIGINS').split(',') || [];
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -15,6 +20,19 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: '*',
+    allowedHeaders: 'Content-Type, Accept',
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Hux Assessment API')
