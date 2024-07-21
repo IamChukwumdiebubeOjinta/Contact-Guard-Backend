@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -30,14 +31,31 @@ export class ContactService {
           );
         }
       }
-      throw error;
+      // Log the error for debugging purposes
+      console.error('Error creating contact:', error);
+      throw new InternalServerErrorException(
+        'An error occurred while creating the contact',
+      );
     }
   }
 
   async getAllContacts(userId: string): Promise<Contact[]> {
-    return this.prisma.contact.findMany({
-      where: { userId },
-    });
+    try {
+      const contacts = await this.prisma.contact.findMany({
+        where: { userId },
+      });
+
+      // Handle potential null values in fullname
+      return contacts.map((contact) => ({
+        ...contact,
+        fullname: contact.fullname || 'Unknown',
+      }));
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      throw new InternalServerErrorException(
+        'An error occurred while fetching contacts',
+      );
+    }
   }
 
   async getContactById(userId: string, contactId: string): Promise<Contact> {

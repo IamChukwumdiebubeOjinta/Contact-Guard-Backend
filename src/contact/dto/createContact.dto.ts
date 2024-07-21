@@ -2,7 +2,6 @@ import {
   IsString,
   IsNotEmpty,
   Matches,
-  IsEmail,
   MinLength,
   MaxLength,
   IsOptional,
@@ -12,37 +11,33 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 class NameValidator {
-  validate(value: string) {
+  validate(value: string): boolean {
     return /^[a-zA-Z\s'-]+$/.test(value);
   }
 
-  defaultMessage() {
+  defaultMessage(): string {
     return 'Name should only contain letters, spaces, hyphens, and apostrophes';
   }
 }
 
 export class CreateContactDto {
-  @ApiProperty({ description: 'The first name of the contact' })
+  @ApiProperty({
+    description: 'The first name of the contact',
+    minLength: 2,
+    maxLength: 100,
+  })
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
-  @MaxLength(50)
+  @MaxLength(100)
   @Validate(NameValidator)
   @Transform(({ value }) => value.trim())
-  firstname: string;
-
-  @ApiProperty({ description: 'The last name of the contact' })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(2)
-  @MaxLength(50)
-  @Validate(NameValidator)
-  @Transform(({ value }) => value.trim())
-  lastname: string;
+  fullname: string;
 
   @ApiProperty({
     description: 'The phone number of the contact',
     example: '+2345678900896',
+    pattern: '^+?[1-9]d{1,14}$',
   })
   @IsString()
   @IsNotEmpty()
@@ -52,9 +47,13 @@ export class CreateContactDto {
   @Transform(({ value }) => value.replace(/\s+/g, ''))
   phonenumber: string;
 
-  @ApiProperty({ description: 'contact email' })
+  @ApiProperty({
+    description: 'Company name (optional)',
+    required: false,
+    maxLength: 100,
+  })
   @IsOptional()
-  @IsEmail()
+  @IsString()
   @MaxLength(100)
-  email?: string;
+  companyName?: string;
 }

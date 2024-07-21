@@ -1,11 +1,13 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { ContactModule } from './contact/contact.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { AuthMiddleware } from './auth/auth.middleware';
 import { JwtService } from '@nestjs/jwt';
+import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { jwtConfig } from './config/jwtConfig';
 
 @Module({
   imports: [
@@ -13,16 +15,12 @@ import { JwtService } from '@nestjs/jwt';
     ContactModule,
     PrismaModule,
     AuthModule,
+    PassportModule,
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [jwtConfig],
     }),
   ],
-  providers: [JwtService],
+  providers: [JwtService, JwtStrategy],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes({ path: 'contact', method: RequestMethod.ALL });
-  }
-}
+export class AppModule {}

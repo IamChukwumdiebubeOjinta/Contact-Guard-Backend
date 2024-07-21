@@ -3,6 +3,16 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+interface JwtPayload {
+  sub: string;
+  username: string;
+}
+
+interface ValidatedUser {
+  userId: string;
+  username: string;
+}
+
 /**
  * Injectable class representing a JWT authentication strategy.
  * Extends PassportStrategy and initializes with JWT extraction method, expiration check, and secret key.
@@ -14,11 +24,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET_KEY'),
+      secretOrKey: configService.getOrThrow('jwt.secret'),
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload): Promise<ValidatedUser> {
     return { userId: payload.sub, username: payload.username };
   }
 }

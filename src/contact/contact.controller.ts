@@ -10,15 +10,21 @@ import {
   UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateContactDto, UpdateContactDto } from './dto';
 import { ContactService } from './contact.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth-guard';
 
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @ApiTags('Contacts')
 @Controller('contact')
-@UseGuards(JwtAuthGuard)
 export class ContactController {
   constructor(private contactService: ContactService) {}
 
@@ -33,12 +39,11 @@ export class ContactController {
     @Req() req: Request,
     @Body() createContactDto: CreateContactDto,
   ) {
-    if (!req.user) {
+    const user = req.user as { userId: string } | undefined;
+    if (!user) {
       throw new UnauthorizedException('User not authenticated');
     }
-
-    const userId = req.user['id'];
-    return this.contactService.createContact(userId, createContactDto);
+    return this.contactService.createContact(user.userId, createContactDto);
   }
 
   @Get()
@@ -49,7 +54,8 @@ export class ContactController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   async getAllContacts(@Req() req: Request) {
-    const userId = req.user['id'];
+    const userId = req.user['userId'];
+
     return this.contactService.getAllContacts(userId);
   }
 
@@ -77,7 +83,7 @@ export class ContactController {
     @Param('id') id: string,
     @Body() updateContactDto: UpdateContactDto,
   ) {
-    const userId = req.user['id'];
+    const userId = req.user['userId'];
     return this.contactService.updateContact(userId, id, updateContactDto);
   }
 
@@ -89,7 +95,7 @@ export class ContactController {
   })
   @ApiResponse({ status: 404, description: 'Contact not found.' })
   async deleteContact(@Req() req: Request, @Param('id') id: string) {
-    const userId = req.user['id'];
+    const userId = req.user['userId'];
     await this.contactService.deleteContact(userId, id);
     return { message: 'Contact deleted successfully' };
   }

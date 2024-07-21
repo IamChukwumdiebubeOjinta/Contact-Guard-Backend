@@ -32,8 +32,16 @@ export class UsersService {
     });
   }
 
+  async getAllUsers() {
+    return this.prisma.user.findMany();
+  }
+
   async update(id: string, data: Partial<User | null>) {
     return this.prisma.user.update({ where: { id }, data });
+  }
+
+  async delete(id: string) {
+    return this.prisma.user.delete({ where: { id } });
   }
 
   async create(data: { username: string; email: string; password: string }) {

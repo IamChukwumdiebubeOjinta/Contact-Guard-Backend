@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
-  IsEmail,
   IsOptional,
   IsString,
   Matches,
@@ -21,39 +20,39 @@ class NameValidator {
 }
 
 export class UpdateContactDto {
-  @ApiProperty({ description: 'The first name of the contact' })
-  @IsOptional()
+  @ApiProperty({
+    description: 'The first name of the contact',
+    minLength: 2,
+    maxLength: 100,
+  })
   @IsString()
+  @IsOptional()
   @MinLength(2)
-  @MaxLength(50)
+  @MaxLength(100)
   @Validate(NameValidator)
   @Transform(({ value }) => value.trim())
-  firstname?: string;
-
-  @ApiProperty({ description: 'The last name of the contact' })
-  @IsOptional()
-  @IsString()
-  @MinLength(2)
-  @MaxLength(50)
-  @Validate(NameValidator)
-  @Transform(({ value }) => value.trim())
-  lastname?: string;
+  fullname: string;
 
   @ApiProperty({
     description: 'The phone number of the contact',
     example: '+2345678900896',
+    pattern: '^+?[1-9]d{1,14}$',
   })
-  @IsOptional()
   @IsString()
-  @Matches(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/, {
+  @IsOptional()
+  @Matches(/^\+?[1-9]\d{1,14}$/, {
     message: 'Phone number must be a valid format',
   })
   @Transform(({ value }) => value.replace(/\s+/g, ''))
-  phonenumber?: string;
+  phonenumber: string;
 
-  @ApiProperty({ description: 'contact email' })
+  @ApiProperty({
+    description: 'Company name (optional)',
+    required: false,
+    maxLength: 100,
+  })
   @IsOptional()
-  @IsEmail()
+  @IsString()
   @MaxLength(100)
-  email?: string;
+  companyName?: string;
 }
