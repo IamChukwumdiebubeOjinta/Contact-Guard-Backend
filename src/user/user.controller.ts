@@ -13,8 +13,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth-guard';
 import { UsersService } from './user.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth-guard';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()

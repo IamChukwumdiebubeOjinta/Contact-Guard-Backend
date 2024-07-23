@@ -32,7 +32,11 @@ describe('UsersService', () => {
     prisma.user.create = jest.fn().mockReturnValue(user);
     jwtService.sign = jest.fn().mockReturnValue('token');
 
-    const result = await service.register('testuser', 'password');
+    const result = await service.create(
+      'testuser',
+      // 'password',
+      // 'testuser@example.com',
+    );
     expect(result).toEqual({ token: 'token' });
   });
 
@@ -45,7 +49,7 @@ describe('UsersService', () => {
     prisma.user.findUnique = jest.fn().mockReturnValue(user);
     jwtService.sign = jest.fn().mockReturnValue('token');
 
-    const result = await service.login('testuser', 'password');
+    const result = await service.validateUser('testuser', 'password');
     expect(result).toEqual({ token: 'token' });
   });
 });

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'; // Assuming you're using Prisma
 import { User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 /**
@@ -30,6 +31,19 @@ export class UsersService {
         OR: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
       },
     });
+  }
+
+  async validateUser(
+    usernameOrEmail: string,
+    pass: string,
+  ): Promise<any | undefined> {
+    const user = await this.findByUsernameOrEmail(usernameOrEmail);
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
   }
 
   async getAllUsers() {

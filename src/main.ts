@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as cors from 'cors';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -21,7 +22,7 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({
+  const corsOptions: CorsOptions = {
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
@@ -29,10 +30,10 @@ async function bootstrap() {
         callback(new Error('Not allowed by CORS'));
       }
     },
-    methods: '*',
-    allowedHeaders: 'Content-Type, Accept',
-    credentials: true,
-  });
+    credentials: true, // If you need to include cookies or authorization headers in requests
+  };
+
+  app.enableCors(corsOptions);
 
   const config = new DocumentBuilder()
     .setTitle('Hux Assessment API')

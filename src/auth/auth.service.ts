@@ -72,9 +72,13 @@ export class AuthService {
    * @param {LoginDto} user - The user object containing the username/email and password.
    * @return {Promise<{ access_token: string, refresh_token: string, msg: string }>} - A promise that resolves to an object containing the access and refresh tokens.
    */
-  async login(
-    user: LoginDto,
-  ): Promise<{ access_token: string; refresh_token?: string; msg: string }> {
+  async login(user: LoginDto): Promise<{
+    access_token: string;
+    refresh_token?: string;
+    username: string;
+    email: string;
+    msg: string;
+  }> {
     const { usernameOrEmail, password } = user;
 
     // Validate user
@@ -83,6 +87,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // console.log(validatedUser);
     // Generate tokens
     const tokens = await this.generateTokens(validatedUser);
 
@@ -91,6 +96,8 @@ export class AuthService {
 
     return {
       msg: 'User logged in successfully',
+      username: validatedUser.username,
+      email: validatedUser.email,
       access_token: tokens.access_token,
     };
   }
@@ -144,7 +151,10 @@ export class AuthService {
    * @param {string} pass - The password of the user to validate.
    * @return {Promise<any>} A promise that resolves to the validated user's information.
    */
-  async validateUser(usernameOrEmail: string, pass: string): Promise<any> {
+  async validateUser(
+    usernameOrEmail: string,
+    pass: string,
+  ): Promise<any | undefined> {
     const user = await this.usersService.findByUsernameOrEmail(usernameOrEmail);
     if (user && (await bcrypt.compare(pass, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -167,7 +177,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('jwt.secret'),
-        expiresIn: '35m',
+        expiresIn: '60m',
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
