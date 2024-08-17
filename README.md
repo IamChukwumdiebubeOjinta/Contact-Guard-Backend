@@ -5,15 +5,19 @@
 </p>
 
 <!-- markdownlint-disable MD033 -->
-<picture align="center">
-  <source media="(prefers-color-scheme: dark)" srcset="public/logo-white.png" width="200">
-  <img alt="Contact Guard" src="public/images/logo-white.png">
-</picture>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/logo-white.png" width="200">
+    <img alt="Contact Guard" src="public/images/logo-white.png">
+  </picture>
+</p>
 
-<picture align="center">
-  <source media="(prefers-color-scheme: light)" srcset="public/logo-dark.png" width="200">
-  <img alt="Contact Guard" src="public/images/logo-dark.png">
-</picture>
+<p align="center">
+  <picture align="center">
+    <source media="(prefers-color-scheme: light)" srcset="public/logo-dark.png" width="200">
+    <img alt="Contact Guard" src="public/images/logo-dark.png">
+  </picture>
+</p>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
