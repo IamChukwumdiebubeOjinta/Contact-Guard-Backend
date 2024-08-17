@@ -5,12 +5,12 @@
 </p>
 
 <!-- markdownlint-disable MD033 -->
-<picture>
+<picture align="center">
   <source media="(prefers-color-scheme: dark)" srcset="public/logo-white.png" width="200">
   <img alt="Contact Guard" src="public/images/logo-white.png">
 </picture>
 
-<picture>
+<picture align="center">
   <source media="(prefers-color-scheme: light)" srcset="public/logo-dark.png" width="200">
   <img alt="Contact Guard" src="public/images/logo-dark.png">
 </picture>
